@@ -1,10 +1,16 @@
 import {useState} from "react";
 
-function ArtistsList({artists}) {
+function ArtistsList({artists, deleteArtist}) {
 
   return (
     <div>
-      {artists.map( (artist) => <div key={artist.id}>{artist.name}</div>)}
+      {artists.map(
+        (artist) =>
+          <>
+            <div key={artist.id}>{artist.name}</div>
+            <button onClick={() => deleteArtist(artist.id)}> Delete</button>
+          </>
+      )}
     </div>
   );
 }
@@ -30,6 +36,10 @@ function ArtistCreationForm({artists, addArtist}) {
   );
 }
 
+function Reverse({reverseArtists}) {
+  return <button onClick={reverseArtists}>Reverse Artists</button>
+}
+
 export default function App() {
   const [artists, setArtists] = useState([{id: 1, name: 'Axel'}, {id: 2, name:'Ambar'}, {id: 3, name: 'Amy'}]);
 
@@ -37,8 +47,20 @@ export default function App() {
     setArtists( (prevArtists) => [...prevArtists, {id: prevArtists.length + 1, name: artistName}] )
   }
 
+  const deleteArtist = (artistId) => {
+    setArtists( (prevArtists) => prevArtists.filter( (artist) => artist.id !== artistId ) )
+  }
+
+  const reverseArtists = () => {
+    setArtists( (prevArtists) => [...prevArtists].reverse() );
+  }
+
   return <>
+    <Reverse reverseArtists={reverseArtists}/>
     <ArtistCreationForm addArtist={addArtist} />
-    <ArtistsList artists={artists}/>
+    <ArtistsList
+      artists={artists}
+      deleteArtist={deleteArtist}
+    />
   </>
 }
