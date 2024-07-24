@@ -1,15 +1,20 @@
 import {useState} from "react";
 
-function ArtistsList({artists, deleteArtist}) {
+function ArtistsList({artists, deleteArtist, editIsEditableArtist, handleChangeName}) {
+
+  const handleChangeNameForArtist = (artist, e) => {
+    handleChangeName(artist.id, e.target.value)
+  }
 
   return (
     <div>
       {artists.map(
         (artist) =>
-          <>
-            <div key={artist.id}>{artist.name}</div>
+          <div key={artist.id}>
+            {!artist.isEditable ? (<span>{artist.name}</span>) : (<input type="text" onChange={(e) => handleChangeNameForArtist(artist, e)} name={`artist_edit_name_${artist.id}`} value={artist.name}/>)}
             <button onClick={() => deleteArtist(artist.id)}> Delete</button>
-          </>
+            <button onClick={() => editIsEditableArtist(artist.id)}> Edit</button>
+          </div>
       )}
     </div>
   );
@@ -41,14 +46,26 @@ function Reverse({reverseArtists}) {
 }
 
 export default function App() {
-  const [artists, setArtists] = useState([{id: 1, name: 'Axel'}, {id: 2, name:'Ambar'}, {id: 3, name: 'Amy'}]);
+  const [artists, setArtists] = useState([
+    {id: 1, name: 'Axel', isEditable: false},
+    {id: 2, name:'Ambar', isEditable: false},
+    {id: 3, name: 'Amy', isEditable: false}
+  ]);
 
   const addArtist = (artistName) => {
     setArtists( (prevArtists) => [...prevArtists, {id: prevArtists.length + 1, name: artistName}] )
   }
 
+  const handleChangeName = (artistId, newArtistName) => {
+    setArtists( (prevArtists) => prevArtists.map( (artist) => artist.id === artistId ? { ...artist, name: newArtistName } : artist ) )
+  }
+
   const deleteArtist = (artistId) => {
     setArtists( (prevArtists) => prevArtists.filter( (artist) => artist.id !== artistId ) )
+  }
+
+  const editIsEditableArtist = (artistId) => {
+    setArtists( (prevArtists) => prevArtists.map( (artist) => artist.id === artistId ? { ...artist, isEditable: true } : artist ) )
   }
 
   const reverseArtists = () => {
@@ -60,7 +77,9 @@ export default function App() {
     <ArtistCreationForm addArtist={addArtist} />
     <ArtistsList
       artists={artists}
+      handleChangeName={handleChangeName}
       deleteArtist={deleteArtist}
+      editIsEditableArtist={editIsEditableArtist}
     />
   </>
 }
