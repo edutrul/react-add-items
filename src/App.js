@@ -2,18 +2,24 @@ import {useState} from "react";
 
 function ArtistsList({artists, deleteArtist, editIsEditableArtist, handleChangeName}) {
 
-  const handleChangeNameForArtist = (artist, e) => {
-    handleChangeName(artist.id, e.target.value)
-  }
-
   return (
     <div>
       {artists.map(
         (artist) =>
           <div key={artist.id}>
-            {!artist.isEditable ? (<span>{artist.name}</span>) : (<input type="text" onChange={(e) => handleChangeNameForArtist(artist, e)} name={`artist_edit_name_${artist.id}`} value={artist.name}/>)}
+            {!artist.isEditable ?
+              (<span>{artist.name}</span>) :
+              (
+                <input
+                  type="text"
+                  onChange={(e) => handleChangeName(artist.id, e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' ? editIsEditableArtist(artist.id, false) : {} }
+                  name={`artist_edit_name_${artist.id}`}
+                  value={artist.name}/>
+              )
+            }
             <button onClick={() => deleteArtist(artist.id)}> Delete</button>
-            <button onClick={() => editIsEditableArtist(artist.id)}> Edit</button>
+            <button onClick={() => editIsEditableArtist(artist.id, true)}> Edit</button>
           </div>
       )}
     </div>
@@ -64,8 +70,8 @@ export default function App() {
     setArtists( (prevArtists) => prevArtists.filter( (artist) => artist.id !== artistId ) )
   }
 
-  const editIsEditableArtist = (artistId) => {
-    setArtists( (prevArtists) => prevArtists.map( (artist) => artist.id === artistId ? { ...artist, isEditable: true } : artist ) )
+  const editIsEditableArtist = (artistId, isEditable = true) => {
+    setArtists( (prevArtists) => prevArtists.map( (artist) => artist.id === artistId ? { ...artist, isEditable: isEditable } : artist ) )
   }
 
   const reverseArtists = () => {
